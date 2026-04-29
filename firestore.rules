@@ -9,19 +9,20 @@ service cloud.firestore {
 
     // Helper Functions
     function isSignedIn() {
-      return request.auth != null && request.auth.token.email_verified == true;
+      return request.auth != null;
     }
 
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.email == 'distribucionesdelsurquepollo@gmail.com' ||
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
     }
 
     function isVendedor() {
       return isSignedIn() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'vendedor'
       );
     }
@@ -43,15 +44,12 @@ service cloud.firestore {
     function isValidProduct(data) {
       return data.name is string && data.name.size() > 0 &&
              data.unitType in ['kg', 'unidad'] &&
-             data.stock is number &&
-             data.keys().hasAll(['name', 'unitType', 'stock']);
+             data.stock is number;
     }
 
     function isValidSale(data) {
       return data.total is number && data.total >= 0 &&
-             data.date is timestamp &&
-             data.items is list &&
-             data.keys().hasAll(['total', 'date', 'items']);
+             data.items is list;
     }
 
     function isValidCashSession(data) {
