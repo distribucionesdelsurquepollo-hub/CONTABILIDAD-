@@ -13,6 +13,7 @@ import { Sales } from './components/Sales';
 import { Cash } from './components/Cash';
 import { HR } from './components/HR';
 import { Settings } from './components/Settings';
+import { FinancialAnalysis } from './components/FinancialAnalysis';
 import { Loader2 } from 'lucide-react';
 
 interface AppContextType {
@@ -99,6 +100,7 @@ export default function App() {
       case 'sales': return <Sales />;
       case 'cash': return <Cash />;
       case 'hr': return <HR />;
+      case 'analysis': return <FinancialAnalysis />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
     }

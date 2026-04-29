@@ -132,14 +132,23 @@ export function Settings() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Identidad Visual (Source URL)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Identidad Visual (Logo)</label>
               <div className="flex gap-3">
-                 <Input 
-                    placeholder="https://cloud.storage/logo.png"
-                    value={formData.logoUrl} 
-                    onChange={e => setFormData({...formData, logoUrl: e.target.value})}
-                    className="bg-[#111827] border-[#1F2937] text-white flex-1 text-xs"
-                 />
+                    <Input 
+                       type="file"
+                       accept="image/png, image/jpeg"
+                       onChange={(e) => {
+                         const file = e.target.files?.[0];
+                         if (file) {
+                           const reader = new FileReader();
+                           reader.onloadend = () => {
+                             setFormData({...formData, logoUrl: reader.result as string});
+                           };
+                           reader.readAsDataURL(file);
+                         }
+                       }}
+                       className="bg-[#111827] border-[#1F2937] text-white flex-1 text-xs file:bg-[#1F2937] file:text-white file:border-none file:mr-4 file:px-3 file:rounded cursor-pointer h-10"
+                    />
                  <div className="h-10 w-10 border border-[#1F2937] rounded-lg flex items-center justify-center bg-[#0A0B0D] overflow-hidden">
                     {formData.logoUrl ? (
                       <img src={formData.logoUrl} alt="Logo" className="h-full w-full object-contain p-1" />
@@ -147,6 +156,16 @@ export function Settings() {
                       <ImageIcon className="h-5 w-5 text-[#374151]" />
                     )}
                  </div>
+                 {formData.logoUrl && (
+                   <Button 
+                    type="button" 
+                    variant="ghost" 
+                    onClick={() => setFormData({...formData, logoUrl: ''})}
+                    className="text-[9px] h-6 uppercase font-bold text-red-400 hover:text-red-300 hover:bg-red-900/10 self-start"
+                   >
+                     Eliminar Logo
+                   </Button>
+                 )}
               </div>
             </div>
             

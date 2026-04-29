@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { TrendingUp, Plus, Search, Printer, AlertTriangle, X } from 'lucide-react';
+import { TrendingUp, Plus, Search, Printer, AlertTriangle, X, FileDown } from 'lucide-react';
+import { generateInvoicePDF } from '../lib/pdfService';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
@@ -138,7 +139,12 @@ export function Sales() {
     }
   };
 
-  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '' });
+  const { companyConfig } = useApp();
+
+  const handleDownloadInvoice = (sale: Sale) => {
+    generateInvoicePDF(sale, companyConfig);
+    toast.success('Generando comprobante fiscal PDF...');
+  };
 
   const handleAddCustomer = async () => {
     if (!newCustomer.name) return;
@@ -376,8 +382,13 @@ export function Sales() {
                     <TableCell className="text-right font-mono font-bold text-[#10B981] text-sm pr-6">${s.total.toLocaleString()}</TableCell>
                     <TableCell className="text-right pr-6">
                       <div className="flex justify-end gap-2 text-transparent group-hover:text-inherit transition-all">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-[#9CA3AF] hover:text-[#10B981] hover:bg-[#0A0B0D]">
-                           <Printer className="h-4 w-4" />
+                        <Button 
+                          onClick={() => handleDownloadInvoice(s)}
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-8 w-8 text-[#9CA3AF] hover:text-[#10B981] hover:bg-[#0A0B0D]"
+                        >
+                           <FileDown className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronRight,
   Menu,
-  X
+  X,
+  PieChart
 } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { useApp } from '../App';
@@ -35,6 +36,7 @@ export function SidebarLayout({ children, currentTab, setTab }: SidebarLayoutPro
     { id: 'sales', label: 'Ventas', icon: TrendingUp },
     { id: 'cash', label: 'Caja', icon: Wallet },
     { id: 'hr', label: 'Recursos Humanos', icon: Users },
+    { id: 'analysis', label: 'Análisis Financiero', icon: PieChart, adminOnly: true },
     { id: 'settings', label: 'Configuración', icon: SettingsIcon, adminOnly: true },
   ];
 

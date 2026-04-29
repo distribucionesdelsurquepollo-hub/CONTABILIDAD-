@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
-import { Package, Plus, Trash2, Edit2, Search, ArrowUpRight } from 'lucide-react';
+import { Package, Plus, Trash2, Edit2, Search, ArrowUpRight, FileText } from 'lucide-react';
+import { generateInventoryPDF } from '../lib/pdfService';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
 
@@ -90,6 +91,12 @@ export function Inventory() {
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   const isAdmin = userRole?.role === 'admin';
+  const { companyConfig } = useApp();
+
+  const handleDownloadPDF = () => {
+    generateInventoryPDF(products, companyConfig);
+    toast.success('Generando reporte técnico de inventario...');
+  };
 
   return (
     <div className="space-y-6">
@@ -102,6 +109,13 @@ export function Inventory() {
         </div>
 
         <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={handleDownloadPDF}
+            className="border-[#1F2937] text-[#9CA3AF] hover:text-white uppercase font-bold text-[10px] tracking-widest h-10 px-4 rounded-lg"
+          >
+            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+          </Button>
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B7280] group-focus-within:text-[#10B981] transition-colors" />
             <Input 
