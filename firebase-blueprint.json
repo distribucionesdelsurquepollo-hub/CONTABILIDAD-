@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "CompanyConfig": {
+      "title": "Configuración de la Empresa",
+      "description": "Datos básicos de la empresa",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "nit": { "type": "string" },
+        "phone1": { "type": "string" },
+        "phone2": { "type": "string" },
+        "address": { "type": "string" },
+        "warehouseAddress": { "type": "string" },
+        "email": { "type": "string" },
+        "manager": { "type": "string" },
+        "logoUrl": { "type": "string" }
+      },
+      "required": ["name", "email", "manager"]
+    },
+    "Product": {
+      "title": "Producto",
+      "description": "Artículos para la venta o transformación",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "unitType": { "type": "string", "enum": ["kg", "unidad"] },
+        "stock": { "type": "number" },
+        "costPrice": { "type": "number" },
+        "salePrice": { "type": "number" },
+        "category": { "type": "string" },
+        "isInitial": { "type": "boolean" }
+      },
+      "required": ["name", "unitType", "stock"]
+    },
+    "Supplier": {
+      "title": "Proveedor",
+      "description": "Entidades que suministran productos",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Customer": {
+      "title": "Cliente",
+      "description": "Compradores de productos",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Purchase": {
+      "title": "Compra",
+      "description": "Registro de adquisición de productos",
+      "type": "object",
+      "properties": {
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "paymentType": { "type": "string", "enum": ["contado", "credito"] },
+        "amountPaid": { "type": "number" },
+        "isDeboned": { "type": "boolean" }
+      },
+      "required": ["supplierId", "date", "total"]
+    },
+    "Sale": {
+      "title": "Venta",
+      "description": "Registro de salida de productos",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "paymentType": { "type": "string", "enum": ["contado", "credito"] },
+        "amountPaid": { "type": "number" }
+      },
+      "required": ["customerId", "date", "total"]
+    },
+    "DeboningLog": {
+      "title": "Acta de Despresaje",
+      "description": "Trazabilidad de transformación de pollo entero",
+      "type": "object",
+      "properties": {
+        "purchaseId": { "type": "string" },
+        "sourceQuantity": { "type": "number" },
+        "outputItems": { "type": "array" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["purchaseId", "sourceQuantity", "date"]
+    },
+    "CashSession": {
+      "title": "Sesión de Caja",
+      "description": "Control diario de caja",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "openingBalance": { "type": "number" },
+        "closingBalance": { "type": "number" },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "openedBy": { "type": "string" }
+      },
+      "required": ["date", "openingBalance", "status"]
+    },
+    "CashMovement": {
+      "title": "Movimiento de Caja",
+      "description": "Entradas y salidas de dinero",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "type": { "type": "string", "enum": ["in", "out"] },
+        "amount": { "type": "number" },
+        "reason": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sessionId", "type", "amount", "reason", "timestamp"]
+    },
+    "Employee": {
+      "title": "Empleado",
+      "description": "Personal de la empresa",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "salary": { "type": "number" },
+        "role": { "type": "string" }
+      },
+      "required": ["name", "salary"]
+    },
+    "Attendance": {
+      "title": "Asistencia",
+      "description": "Registro de entrada/salida de empleados",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "date": { "type": "string" },
+        "checkIn": { "type": "string", "format": "date-time" },
+        "checkOut": { "type": "string", "format": "date-time" },
+        "isLate": { "type": "boolean" },
+        "isEarlyLeave": { "type": "boolean" },
+        "notes": { "type": "string" },
+        "lunchStartTime": { "type": "string", "format": "date-time" },
+        "lunchEndTime": { "type": "string", "format": "date-time" }
+      },
+      "required": ["employeeId", "date"]
+    },
+    "User": {
+      "title": "Usuario",
+      "description": "Credenciales de acceso al sistema",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "vendedor"] }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "configs/company": { "schema": "CompanyConfig", "description": "Global company settings" },
+    "products/{productId}": { "schema": "Product", "description": "Inventory products" },
+    "suppliers/{supplierId}": { "schema": "Supplier", "description": "Product suppliers" },
+    "customers/{customerId}": { "schema": "Customer", "description": "Clients" },
+    "purchases/{purchaseId}": { "schema": "Purchase", "description": "Purchase records" },
+    "sales/{saleId}": { "schema": "Sale", "description": "Sales records" },
+    "deboning_logs/{logId}": { "schema": "DeboningLog", "description": "Deboning transformation logs" },
+    "cash_sessions/{sessionId}": { "schema": "CashSession", "description": "Daily cash drawer sessions" },
+    "cash_sessions/{sessionId}/movements/{movementId}": { "schema": "CashMovement", "description": "Movements within a session" },
+    "employees/{employeeId}": { "schema": "Employee", "description": "Employee database" },
+    "employees/{employeeId}/attendance/{attendanceId}": { "schema": "Attendance", "description": "Attendance history" },
+    "users/{userId}": { "schema": "User", "description": "System users and roles" }
+  }
+}

@@ -1,0 +1,143 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'distribucionesdelsurquepollo@gmail.com' ||
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isVendedor() {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'vendedor'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.unitType in ['kg', 'unidad'] &&
+             data.stock is number &&
+             data.keys().hasAll(['name', 'unitType', 'stock']);
+    }
+
+    function isValidSale(data) {
+      return data.total is number && data.total >= 0 &&
+             data.date is timestamp &&
+             data.items is list &&
+             data.keys().hasAll(['total', 'date', 'items']);
+    }
+
+    function isValidCashSession(data) {
+      return data.openingBalance is number &&
+             data.status in ['open', 'closed'] &&
+             data.keys().hasAll(['openingBalance', 'status']);
+    }
+
+    // --- Collection Rules ---
+
+    // Company Config
+    match /configs/company {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Users (Auth & Roles)
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && isAdmin(); // Only admins can create users
+      allow update: if isAdmin() && incoming().role in ['admin', 'vendedor'];
+    }
+
+    // Products
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidProduct(incoming());
+      allow update: if (isAdmin() || isVendedor()) && 
+                    isValidProduct(incoming()) &&
+                    (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['stock']));
+      allow delete: if isAdmin();
+    }
+
+    // Suppliers & Customers
+    match /suppliers/{supplierId} {
+      allow read, write: if isSignedIn();
+    }
+    match /customers/{customerId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Purchases
+    match /purchases/{purchaseId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && incoming().total >= 0;
+      allow update: if isAdmin();
+    }
+
+    // Sales
+    match /sales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidSale(incoming());
+      allow update: if isAdmin();
+    }
+
+    // Deboning Logs
+    match /deboning_logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+    }
+
+    // Cash Sessions
+    match /cash_sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // Vendedor can open box
+      allow update: if isSignedIn() && (
+        (isVendedor() && existing().status == 'open' && incoming().diff(existing()).affectedKeys().hasOnly(['closingBalance', 'status', 'endTime'])) ||
+        isAdmin()
+      );
+    }
+
+    match /cash_sessions/{sessionId}/movements/{movementId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                    get(/databases/$(database)/documents/cash_sessions/$(sessionId)).data.status == 'open';
+    }
+
+    // Employees & Attendance
+    match /employees/{employeeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /employees/{employeeId}/attendance/{attendanceId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); 
+    }
+  }
+}
