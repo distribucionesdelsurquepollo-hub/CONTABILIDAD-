@@ -127,13 +127,14 @@ service cloud.firestore {
                     get(/databases/$(database)/documents/cash_sessions/$(sessionId)).data.status == 'open';
     }
 
-    // Employees & Attendance
+    // Employees
     match /employees/{employeeId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    match /employees/{employeeId}/attendance/{attendanceId} {
+    // Attendance (Top-level)
+    match /attendance/{attendanceId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn(); 
     }
